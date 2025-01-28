@@ -32,13 +32,7 @@ services:
       - ./app:/app
       - ./logs:/anvil_data
     working_dir: /app
-    command: >
-      anvil-app-server 
-      --config-file config.yaml
-      --origin ${ORIGIN_URL}
-      --database jdbc:postgresql://db/${POSTGRES_DB}?username=${POSTGRES_USER}&password=${POSTGRES_PASSWORD}
-      --client-uplink-key ${CLIENT_UPLINK_KEY}
-      --server-uplink-key ${SERVER_UPLINK_KEY}
+    command: ["anvil-app-server", "--config-file", "config.yaml", "--origin", "${ORIGIN_URL}", "--database", "jdbc:postgresql://db/${POSTGRES_DB}?username=${POSTGRES_USER}&password=${POSTGRES_PASSWORD}", "--client-uplink-key", "${CLIENT_UPLINK_KEY}", "--uplink-key", "${SERVER_UPLINK_KEY}"]
     environment:
       - POSTGRES_USER=${POSTGRES_USER:-anvil}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-anvil}
