@@ -1,8 +1,12 @@
 app: /app/{{ cookiecutter.app_folder_name }}
 data-dir: /anvil_data
-# database: jdbc:postgresql://db/anvil?username=anvil&password=anvil
-# uplink-key: uplink-key
-# client-uplink-key: client-uplink-key
+uplink-key: server_uplink_key
+client-uplink-key: client_uplink_key
 auto-migrate: true
 port: "3030"  # Internal Docker port - do not change this
 disable-tls: false  # Set to true when using Cloudflare Tunnel
+smtp-host: smtp_host
+smtp-port: smtp_port
+smtp-encryption: starttls
+smtp-username: smtp_username
+smtp-password: smtp_password

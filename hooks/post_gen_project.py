@@ -1,7 +1,9 @@
 #!/usr/bin/env python
+import os
 import uuid
 import secrets
 import string
+import yaml
 
 
 def generate_uplink_key(prefix=''):
@@ -12,9 +14,37 @@ def generate_uplink_key(prefix=''):
 
 
 def generate_secure_password():
-    """Generate a secure random password for database"""
-    alphabet = string.ascii_letters + string.digits + string.punctuation
-    return ''.join(secrets.choice(alphabet) for _ in range(32))
+    """Generate a secure random password that's safe for database connection strings.
+    
+    The password will:
+    - Be 32 characters long
+    - Include uppercase letters, lowercase letters, numbers
+    - Include only safe special characters: .-_=+!*$
+    - Have at least one character from each category
+    """
+    # Define character sets
+    lowercase = string.ascii_lowercase
+    uppercase = string.ascii_uppercase
+    digits = string.digits
+    safe_special = ".-_=+!*$"
+    
+    # Ensure at least one from each set
+    password = [
+        secrets.choice(lowercase),
+        secrets.choice(uppercase),
+        secrets.choice(digits),
+        secrets.choice(safe_special)
+    ]
+    
+    # Fill the rest with a mix of all allowed characters
+    allowed_chars = lowercase + uppercase + digits + safe_special
+    password.extend(secrets.choice(allowed_chars) for _ in range(28))
+    
+    # Shuffle the password characters
+    shuffled = list(password)
+    secrets.SystemRandom().shuffle(shuffled)
+    
+    return ''.join(shuffled)
 
 
 def create_env_file():
@@ -25,9 +55,7 @@ def create_env_file():
 
     # Generate secure credentials
     replacements = {
-        'POSTGRES_PASSWORD=anvil': f'POSTGRES_PASSWORD={generate_secure_password()}',
-        'CLIENT_UPLINK_KEY=client_uplink_key': f'CLIENT_UPLINK_KEY={generate_uplink_key("client_")}',
-        'SERVER_UPLINK_KEY=server_uplink_key': f'SERVER_UPLINK_KEY={generate_uplink_key("server_")}'
+        'POSTGRES_PASSWORD=anvil': f'POSTGRES_PASSWORD={generate_secure_password()}'
     }
 
     # Replace placeholders with secure values
@@ -39,9 +67,27 @@ def create_env_file():
         f.write(env_content)
 
 
+def update_config_yaml():
+    """Update config.yaml with secure uplink keys"""
+    config_path = os.path.join('app', 'config.yaml')
+    
+    # Read the current config
+    with open(config_path, 'r') as f:
+        config = yaml.safe_load(f)
+    
+    # Update uplink keys
+    config['uplink-key'] = generate_uplink_key('server_')
+    config['client-uplink-key'] = generate_uplink_key('client_')
+    
+    # Write back to config.yaml
+    with open(config_path, 'w') as f:
+        yaml.dump(config, f, default_flow_style=False)
+
+
 def main():
     """Post project generation hook"""
     create_env_file()
+    update_config_yaml()
 
 
 if __name__ == '__main__':
