@@ -6,7 +6,7 @@ auto-migrate: true
 port: "3030"  # Internal Docker port - do not change this
 disable-tls: false  # Set to true when using Cloudflare Tunnel
 smtp-host: smtp_host
-smtp-port: smtp_port
+smtp-port: 587
 smtp-encryption: starttls
 smtp-username: smtp_username
 smtp-password: smtp_password
