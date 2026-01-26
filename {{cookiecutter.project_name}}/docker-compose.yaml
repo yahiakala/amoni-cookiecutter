@@ -11,9 +11,9 @@ services:
     volumes:
       - postgresql:/var/lib/postgresql/data
     environment:
-      - POSTGRES_USER=anvil
-      - POSTGRES_DB=anvil
-      - POSTGRES_PASSWORD=anvil
+      - POSTGRES_USER=${POSTGRES_USER:-anvil}
+      - POSTGRES_DB=${POSTGRES_DB:-anvil}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-anvil}
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U anvil"]
       interval: 2s
@@ -32,10 +32,11 @@ services:
       - ./app:/app
       - ./logs:/anvil_data
     working_dir: /app
-    command: >
-      anvil-app-server
-      --config-file config.yaml
-      --origin ${ORIGIN_URL}
+    command: ["anvil-app-server", "--config-file", "config.yaml", "--origin", "${ORIGIN_URL}", "--database", "jdbc:postgresql://db/${POSTGRES_DB}?username=${POSTGRES_USER}&password=${POSTGRES_PASSWORD}"]
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER:-anvil}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-anvil}
+      - POSTGRES_DB=${POSTGRES_DB:-anvil}
     healthcheck:
       test: ["CMD-SHELL", "curl -f http://localhost:3030 || exit 1"]
       interval: 5s
